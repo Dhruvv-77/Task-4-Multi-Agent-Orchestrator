@@ -1,0 +1,10 @@
+{
+  "name": "multi-agent-orchestrator-root",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "pnpm --filter @multi-agent/orchestrator test",
+    "orch": "pnpm --filter @multi-agent/orchestrator orch"
+  }
+}

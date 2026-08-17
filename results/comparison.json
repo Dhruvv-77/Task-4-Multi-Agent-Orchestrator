@@ -1,0 +1,46 @@
+[
+  {
+    "configName": "Config A (Single-Agent Baseline)",
+    "taskSuccessRate": 1,
+    "criticCatchRate": 0,
+    "rubberStampRate": 0,
+    "meanRevisionRounds": 1,
+    "redundantRoundTripRatio": 0,
+    "totalTokensPerTask": 1506,
+    "wallClockPerTaskMs": 15303,
+    "sampleSize": 15
+  },
+  {
+    "configName": "Config B (Critic No Cap)",
+    "taskSuccessRate": 0.733,
+    "criticCatchRate": 1,
+    "rubberStampRate": 0,
+    "meanRevisionRounds": 4.6,
+    "redundantRoundTripRatio": 0,
+    "totalTokensPerTask": 7521,
+    "wallClockPerTaskMs": 82042,
+    "sampleSize": 15
+  },
+  {
+    "configName": "Config C (Critic 3-Cap)",
+    "taskSuccessRate": 0.6,
+    "criticCatchRate": 1,
+    "rubberStampRate": 0,
+    "meanRevisionRounds": 2.13,
+    "redundantRoundTripRatio": 0,
+    "totalTokensPerTask": 3882,
+    "wallClockPerTaskMs": 39829,
+    "sampleSize": 15
+  },
+  {
+    "configName": "Config D (Critic Isolated)",
+    "taskSuccessRate": 0.667,
+    "criticCatchRate": 1,
+    "rubberStampRate": 0,
+    "meanRevisionRounds": 2.07,
+    "redundantRoundTripRatio": 0,
+    "totalTokensPerTask": 3452,
+    "wallClockPerTaskMs": 35828,
+    "sampleSize": 15
+  }
+]
