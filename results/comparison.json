@@ -6,30 +6,30 @@
     "rubberStampRate": 0,
     "meanRevisionRounds": 1,
     "redundantRoundTripRatio": 0,
-    "totalTokensPerTask": 1506,
-    "wallClockPerTaskMs": 15303,
+    "totalTokensPerTask": 1556,
+    "wallClockPerTaskMs": 17756,
     "sampleSize": 15
   },
   {
     "configName": "Config B (Critic No Cap)",
-    "taskSuccessRate": 0.733,
+    "taskSuccessRate": 0.867,
     "criticCatchRate": 1,
     "rubberStampRate": 0,
-    "meanRevisionRounds": 4.6,
+    "meanRevisionRounds": 3.6,
     "redundantRoundTripRatio": 0,
-    "totalTokensPerTask": 7521,
-    "wallClockPerTaskMs": 82042,
+    "totalTokensPerTask": 5879,
+    "wallClockPerTaskMs": 69706,
     "sampleSize": 15
   },
   {
     "configName": "Config C (Critic 3-Cap)",
-    "taskSuccessRate": 0.6,
+    "taskSuccessRate": 0.467,
     "criticCatchRate": 1,
     "rubberStampRate": 0,
-    "meanRevisionRounds": 2.13,
+    "meanRevisionRounds": 2.27,
     "redundantRoundTripRatio": 0,
-    "totalTokensPerTask": 3882,
-    "wallClockPerTaskMs": 39829,
+    "totalTokensPerTask": 3855,
+    "wallClockPerTaskMs": 38785,
     "sampleSize": 15
   },
   {
@@ -37,10 +37,10 @@
     "taskSuccessRate": 0.667,
     "criticCatchRate": 1,
     "rubberStampRate": 0,
-    "meanRevisionRounds": 2.07,
+    "meanRevisionRounds": 1.73,
     "redundantRoundTripRatio": 0,
-    "totalTokensPerTask": 3452,
-    "wallClockPerTaskMs": 35828,
+    "totalTokensPerTask": 2852,
+    "wallClockPerTaskMs": 28179,
     "sampleSize": 15
   }
 ]

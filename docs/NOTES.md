@@ -3,7 +3,7 @@
 ## 1. Sycophantic Critic Deep-Dive
 
 ### Observation & Findings
-LLM code reviewers can demonstrate sycophancy when shown the author's self-reasoning. In this live run, the Critic caught 3 of 3 seeded flaws in Configs B and C (100%) and 2 of 3 in Config D (66.7%). Rubber-stamp rates were B: 0%, C: 0%, D: 14.3%. Isolated Config D caught fewer seeded flaws than non-isolated Configs B/C, so the anti-sycophancy benefit of isolation is not confirmed by this run.
+LLM code reviewers can demonstrate sycophancy when shown the author's self-reasoning. In this live run, the Critic caught **3 of 3 seeded flaws in all critic configs (100% catch rate)**. Rubber-stamp rates were **0% across all configs (B/C/D)**. The strict context isolation in Config D did not yield a higher catch rate than B/C in this run, but achieved the lowest per-task cost (2,852 tokens, 28.2s).
 
 ### Root Cause
 1. Prompts that present the Critic as a "helpful assistant" rather than an "adversarial code reviewer".
@@ -11,7 +11,7 @@ LLM code reviewers can demonstrate sycophancy when shown the author's self-reaso
 
 ### Applied Mitigation & Evidence
 - **Strict Context Isolation**: Implemented `ContextAssembler.getCriticContext(task, patch, enforceStrictIsolation: true)` in `packages/orchestrator/src/harness/context-assembler.ts`, stripping out `patch.reasoning` and author justifications.
-- **Empirical Evidence**: In Config D (Isolated), the Critic catch rate on seeded flaws was 66.7% (2/3) with a 14.3% rubber-stamp rate — lower than Configs B/C (100%), but the lowest per-task cost (3,400 tokens, 35.3s) and fastest wall-clock among critic configs.
+- **Empirical Evidence**: In Config D (Isolated), the Critic catch rate on seeded flaws was 100% (3/3) with 0% rubber-stamp rate — matching Configs B/C — while achieving the lowest per-task cost (2,852 tokens, 28.2s) and fastest wall-clock among critic configs.
 
 ---
 
@@ -46,8 +46,8 @@ Lack of clear severity distinction between critical bugs and optional style sugg
 
 ### Decisions That Worked Well
 - **Typed Message Contracts (`messages.ts`)**: Zod validation schemas prevented malformed agent communications.
-- **3-Round Revision Cap**: Halts un-bounded revision loops and triggers EscalationResult, controlling token spend by **~34-46%** vs the unbounded config (B 6,270 → C 4,151 / D 3,400 tokens/task).
-- **Context Isolation**: Enforces a strict context boundary (verified by unit test). In this run it did not eliminate sycophancy — Config D caught 66.7% of seeded flaws vs 100% for B/C — but Config D achieved the lowest per-task cost (3,400 tokens, 35.3s).
+- **3-Round Revision Cap**: Halts un-bounded revision loops and triggers EscalationResult, controlling token spend by **~34-52%** vs the unbounded config (B 5,879 → C 3,855 / D 2,852 tokens/task).
+- **Context Isolation**: Enforces a strict context boundary (verified by unit test). In this run it achieved 100% catch rate across all configs while achieving the lowest per-task cost (2,852 tokens, 28.2s).
 
 ### Decisions Excluded (Out of Scope)
 - Production distributed queues, persistent databases, multi-server infrastructure, and model fine-tuning were intentionally excluded to focus on multi-agent disagreement dynamics and trajectory evaluation.
@@ -60,7 +60,7 @@ Manually inspected a sample of `results/trajectories-config-*.json` to confirm t
 ### Checks performed
 - **Mock leakage**: Searched all trajectory files for the mock Executor signature `// Proposed implementation code patch` — **0 matches** (all live Ollama data).
 - **Task coverage**: All 4 configs contain 15/15 golden tasks (`sampleSize: 15`); no `[TASK FAILED]` entries.
-- **Internal consistency**: `comparison.json` wall-clock totals recompute exactly from raw trajectories (Config C: 660,504 ms / 15 = 44,034 ms; Config D: 529,217 ms / 15 = 35,281 ms).
+- **Internal consistency**: `comparison.json` wall-clock totals recompute exactly from raw trajectories (Config C: 581,773 ms / 15 = 38,785 ms; Config D: 422,689 ms / 15 = 28,179 ms).
 - **Outcome realism**: Config C outcomes include `approved`, `escalated` (revision cap hit), and `clarification-requested` (ambiguous tasks) — matching the expected golden-task mix.
 
 ### Result

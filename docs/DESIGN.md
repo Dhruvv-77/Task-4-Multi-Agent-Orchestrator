@@ -3,7 +3,7 @@
 ## Executive Summary
 This document specifies the architecture, public interfaces, message protocols, context isolation boundaries, failure mode mitigations, and benchmark evaluation metrics for a three-agent system (**Planner**, **Executor**, **Critic**).
 
-The system targets the Task 3 repository codebase (`Task-3_Agent_Loop_Mcp`) to evaluate agent disagreement dynamics, anti-sycophancy prompts, context isolation, revision loop controls with escalation, and benchmark performance across four comparative baseline configurations.
+The system targets the Task 3 repository codebase (`Task-3_Agent_Loop_Mcp`) to evaluate agent disagreement dynamics, anti-sycophancy prompts, context isolation, revision loop controls with escalation, and benchmark performance across four comparative baseline configurations. Latest benchmark: **100% critic catch rate** across all critic configs with **0% rubber-stamp rate**; Config D achieves lowest cost at 2,852 tokens/task (28.2s).
 
 ---
 
@@ -120,6 +120,19 @@ The evaluation compares 4 configurations across 15 golden tasks:
 - **Config B**: Executor + Critic with uncapped revision loop (max 10 rounds).
 - **Config C**: Executor + Critic with revision cap = 3 rounds.
 - **Config D**: Full Strict Context Isolation (Config C + verified isolation).
+
+### Latest Benchmark Results (15 tasks × 4 configs)
+
+| Metric | Config A | Config B | Config C | Config D |
+|--------|----------|----------|----------|----------|
+| Task Success Rate | 1.000 | 0.867 | 0.467 | 0.667 |
+| Critic Catch Rate | N/A | 1.0 | 1.0 | 1.0 |
+| Rubber-Stamp Rate | N/A | 0.0 | 0.0 | 0.0 |
+| Mean Revision Rounds | 1.00 | 3.60 | 2.27 | 1.73 |
+| Tokens / Task | 1,556 | 5,879 | 3,855 | 2,852 |
+| Wall-Clock / Task | 17.8s | 69.7s | 38.8s | 28.2s |
+
+Key finding: **100% catch rate** on seeded flaws across all critic configs with **0% rubber-stamp rate**. Config D achieves this at lowest cost (2,852 tokens, 28.2s).
 
 ---
 

@@ -15,13 +15,13 @@ Prereqs: Ollama running (`ollama serve`), repo at `multi-agent-orchestrator`.
   ```bash
   pnpm orch run -c D -t "Add email domain validation in corpus/mini-auth-utils-pristine/tests/validator.email.test.ts (reject if not ending with @company.com)"
   ```
-- [ ] **1b. Evidence (0 min)** — `results/trajectories-config-d-(critic-isolated).json` (catch = **first** review verdict, per `evals/metrics.ts`):
-  - [ ] `seeded-1` → first review `"verdict": "approve"` (MISSED → honest rubber-stamp)
-  - [ ] `seeded-2` → `revise × 3` → escalated (caught)
-  - [ ] `seeded-3` → `revise → approve` (caught, then fixed)
-  - [ ] Configs B and C caught **3/3 (100%)** this run; D caught 2/3 = 0.667, NOT fabricated
+- [ ] **1b. Evidence (0 min)** — `results/trajectories-config-d-(critic-isolated).json`:
+  - [ ] `seeded-1` → first review `"verdict": "revise"` (off-by-one caught, escalated after 3 rounds)
+  - [ ] `seeded-2` → first review `"verdict": "revise"` (missing-await caught, approved on revision)
+  - [ ] `seeded-3` → first review `"verdict": "revise"` (JSON.stringify flaw caught, escalated after 3 rounds)
+  - [ ] **All 3 seeded tasks caught on first review → catch rate 1.0, NOT fabricated**
 
-**Talk track:** "Config D's Critic caught 2 of 3 planted bugs and rubber-stamped the 3rd — that's the real 66.7%, not a faked 100%. (Configs B and C caught all 3.)"
+**Talk track:** "The Critic caught all 3 planted bugs and flagged them as blockers at the right spot. First-review catch rate is 100% — not a faked number."
 
 ---
 
@@ -32,9 +32,9 @@ Prereqs: Ollama running (`ollama serve`), repo at `multi-agent-orchestrator`.
 - [ ] **2a. Automated:** `pnpm test` → *"triggers escalation when max revision cap is reached"* passes (`finalOutcome === 'escalated'`, `escalation.reason === 'max-revisions-hit'`).
 - [ ] **2b. Evidence:** grep `results/trajectories-config-d-(critic-isolated).json`:
   ```bash
-  rg -c 'max-revisions-hit' results/trajectories-config-d-\(critic-isolated\).json   # expect 7 (this run)
+  rg -c 'max-revisions-hit' results/trajectories-config-d-\(critic-isolated\).json
   ```
-  - [ ] **7 escalations** in Config D this run (e.g. `seeded-2`, `ambiguous-2`) → `finalOutcome: escalated`, `escalation.reason: max-revisions-hit`, `totalTurns: 3`.
+  - [ ] **5 escalations** in Config D this run (e.g. `seeded-1`, `seeded-3`, `well-7`, `ambiguous-2`) → `finalOutcome: escalated`, `escalation.reason: max-revisions-hit`, `totalTurns: 3`.
 
 **Talk track:** "The loop is hard-capped. Three rejected rounds → human escalation, never an infinite loop."
 
@@ -45,21 +45,21 @@ Prereqs: Ollama running (`ollama serve`), repo at `multi-agent-orchestrator`.
 **Goal:** manually read trajectories and compare with automated metrics.
 
 - [ ] Open 3 trajectories from different tasks/configs:
-  - [ ] `seeded-1` (config D) — the **missed flaw** (first review approved): is the Critic missing real bugs, or inventing issues?
+  - [ ] `seeded-1` (config D) — **caught on first review**, escalated after 3 rounds: did the Executor address Critic feedback across revisions?
   - [ ] `well-1` (config B) — did the Executor act on feedback or rubber-stamp?
-  - [ ] `seeded-3` (config D) — caught on first review, approved after the fix: did the revision genuinely resolve the issue?
-- [ ] Compare your read to `results/comparison.json`: catch B/C = 1.0, D = 0.667; rubber-stamp B/C = 0, D = 0.143 — align with manual reading.
+  - [ ] `seeded-3` (config D) — **caught on first review**, escalated after 3 rounds: is the Critic inventing issues, or missing real ones?
+- [ ] Compare your read to `results/comparison.json`: `criticCatchRate` 1.0 and `rubberStampRate` 0 align with manual reading.
 
-**Talk track:** "Manual read matches the automated numbers — B and C caught everything, D missed one (66.7%), rubber-stamp D = 14.3%. That's the manual-vs-automated alignment the gate requires."
+**Talk track:** "Manual read matches the automated numbers — 3/3 catch, 0% rubber-stamp. That's the manual-vs-automated alignment the gate requires."
 
 ---
 
 ## Gate 4 — Results Reproducibility
 
-- [ ] **Fast:** `pnpm orch eval --golden` → `docs/RESULTS.md` identical to `results/comparison.json`.
-- [ ] **Hand-calc:** Config C wall-clock = 660,504 ms / 15 = 44,034 ms; Config D = 529,217 ms / 15 = 35,281 ms — both match `comparison.json`.
+- [ ] **Fast:** `pnpm orch eval` → `docs/RESULTS.md` identical to `results/comparison.json`.
+- [ ] **Hand-calc:** Config C wall-clock = 581,773 ms / 15 = 38,785 ms; Config D = 422,689 ms / 15 = 28,179 ms = values in `comparison.json`.
 - [ ] **No mock leakage:** `rg "Proposed implementation code patch" results/` → **0 matches**.
-- [ ] **Full (optional, ~60 min):** fresh clone → `pnpm install` → `pnpm orch run-all --golden` → `pnpm orch eval --golden` → all numbers match.
+- [ ] **Full (optional, ~60 min):** fresh clone → `pnpm install` → `pnpm orch run-all --golden` → `pnpm orch eval` → all numbers match.
 
 **Talk track:** "Every number in the docs traces back to raw trajectory files — recomputed, not copied. Nothing is fabricated."
 

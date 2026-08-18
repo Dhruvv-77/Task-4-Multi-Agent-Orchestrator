@@ -11,9 +11,9 @@ A TypeScript framework for orchestrating multi-agent LLM systems (**Planner**, *
   - **Executor**: Generates code patches and records internal self-reasoning.
   - **Critic**: Independent reviewer using anti-sycophancy prompt framing to flag `blocker` vs `minor` severity issues.
 - **🛡️ Strict Context Isolation**:
-  - Strips Executor self-reasoning and prior conversation history from the Critic prompt context, eliminating context leakage (verified by context-assembler.test.ts). Config D (isolated) achieved the lowest per-task cost: 3,151 tokens / 32.00s vs 3,456 / 35.10s for Config C (non-isolated).
+  - Strips Executor self-reasoning and prior conversation history from the Critic prompt context, eliminating context leakage (verified by context-assembler.test.ts). Config D (isolated) achieved the lowest per-task cost: 2,852 tokens / 28.2s.
 - **🔄 Revision Loop & Escalation Engine**:
-  - Manages iterative code revision loops. If revision cap (default 3 rounds) is reached without resolution, automatically triggers an EscalationResult for human review — capping the loop cut mean revision rounds (3.47 → 1.87) and per-task token spend by ~34% vs the unbounded config (5,247 → 3,456).
+  - Manages iterative code revision loops. If revision cap (default 3 rounds) is reached without resolution, automatically triggers an EscalationResult for human review — capping the loop cut mean revision rounds (3.60 → 1.73) and per-task token spend by ~52% vs the unbounded config (5,879 → 2,852).
 - **📊 15-Task Golden Benchmark Suite**:
   - Includes 10 well-specified tasks targeting the Task 3 repository codebase (`Task-3_Agent_Loop_Mcp`), 3 seeded flaw tasks, and 2 ambiguous tasks.
 - **📈 6 Quantitative Trajectory Evaluation Metrics**:
@@ -165,12 +165,12 @@ pnpm orch eval --compare baseline.json
 
 | Metric | Single-Agent (A) | Critic No Cap (B) | Critic 3-Cap (C) | Critic Isolated (D) |
 | :--- | :---: | :---: | :---: | :---: |
-| **Task Success Rate** | 100% (`1.0`) | 80.0% (`0.8`) | 66.7% (`0.667`) | 66.7% (`0.667`) |
-| **Critic Catch Rate** | N/A | 66.7% (`0.667`) | 66.7% (`0.667`) | 66.7% (`0.667`) |
-| **Rubber-Stamp Rate** | N/A | 9.1% (`0.091`) | 11.1% (`0.111`) | 10.0% (`0.100`) |
-| **Mean Revision Rounds** | 1.00 | 3.47 | 1.87 | 1.80 |
-| **Tokens / Task** | 1,519 | 5,247 | 3,456 | 3,151 |
-| **Wall-Clock / Task** | 16.47s | 53.58s | 35.10s | 32.00s |
+| **Task Success Rate** | 100% (`1.0`) | 86.7% (`0.867`) | 46.7% (`0.467`) | 66.7% (`0.667`) |
+| **Critic Catch Rate** | N/A | 100% (`1.0`) | 100% (`1.0`) | 100% (`1.0`) |
+| **Rubber-Stamp Rate** | N/A | 0% (`0.0`) | 0% (`0.0`) | 0% (`0.0`) |
+| **Mean Revision Rounds** | 1.00 | 3.60 | 2.27 | 1.73 |
+| **Tokens / Task** | 1,556 | 5,879 | 3,855 | 2,852 |
+| **Wall-Clock / Task** | 17.8s | 69.7s | 38.8s | 28.2s |
 
 ---
 

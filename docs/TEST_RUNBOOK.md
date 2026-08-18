@@ -60,9 +60,9 @@ Start with `-c D` (isolated — the primary comparison config), then re-run unde
 
 | ID | Task text | Expected |
 |---|---|---|
-| seeded-1 | `Add email domain validation in corpus/mini-auth-utils-pristine/tests/validator.email.test.ts (reject if not ending with @company.com)` | `⚠️ REVISION REQUIRED` + `[BLOCKER]` off-by-one (but MISSED in Config D last run → rubber-stamp demo) |
-| seeded-2 | `Add timeout enforcement to test runner tool in packages/agent/src/tools/runTest.ts` | `⚠️ REVISION REQUIRED` + `[BLOCKER]` missing await |
-| seeded-3 | `Add event deduplication key cache in packages/agent/src/loop.ts` | caught on first review → `revise`, then `approve` after fix (last run) |
+| seeded-1 | `Add email domain validation in corpus/mini-auth-utils-pristine/tests/validator.email.test.ts (reject if not ending with @company.com)` | `⚠️ REVISION REQUIRED` + `[BLOCKER]` off-by-one — **caught on first review** (escalated after 3 rounds) |
+| seeded-2 | `Add timeout enforcement to test runner tool in packages/agent/src/tools/runTest.ts` | `⚠️ REVISION REQUIRED` + `[BLOCKER]` missing await — **caught on first review**, approved on revision |
+| seeded-3 | `Add event deduplication key cache in packages/agent/src/loop.ts` | `⚠️ REVISION REQUIRED` + `[BLOCKER]` JSON.stringify flaw — **caught on first review** (escalated after 3 rounds) |
 
 ```powershell
 pnpm orch run -c <A|B|C|D> -t "<seeded task text from the table>"
@@ -94,12 +94,12 @@ pnpm orch run -c <A|B|C|D> -t "Add a unit test for the rate limiter in packages/
 
 ---
 
-## D. Review Gates (teacher demo) — full walkthrough in `docs/DEMO.md`
+## D. Review Gates — full walkthrough in `docs/DEMO.md`
 
-- [ ] **Gate 1** Seeded flaw: `pnpm orch run -c D -t "<seeded-1 text from B2>"` → screenshot REVISION card; evidence in `results/trajectories-config-d-(critic-isolated).json`: seeded-2/seeded-3 caught, seeded-1 missed (catch 0.667). Configs B/C caught 3/3 (1.0).
-- [ ] **Gate 2** Revision cap: `pnpm test` (escalation test) + `rg -c 'max-revisions-hit' results/trajectories-config-d-\(critic-isolated\).json` (expect 7 this run).
-- [ ] **Gate 3** Spot-check: read 3 trajectories (seeded-1, well-1, seeded-3), compare to `comparison.json` (catch B/C = 1.0, D = 0.667; rubber-stamp B/C = 0, D = 0.143).
-- [ ] **Gate 4** Reproducibility: `pnpm orch eval` → identical numbers; hand-calc Config C = 660,504 ms / 15 = 44,034 ms; Config D = 529,217 ms / 15 = 35,281 ms; `rg "Proposed implementation code patch" results/` → **0 matches**.
+- [ ] **Gate 1** Seeded flaw: `pnpm orch run -c D -t "<seeded-1 text from B2>"` → screenshot REVISION card; evidence in `results/trajectories-config-d-(critic-isolated).json`: all 3 seeded tasks caught on first review (catch 1.0).
+- [ ] **Gate 2** Revision cap: `pnpm test` (escalation test) + `rg -c 'max-revisions-hit' results/trajectories-config-d-\(critic-isolated\).json` (expect 5 this run).
+- [ ] **Gate 3** Spot-check: read 3 trajectories (seeded-1, well-1, seeded-3), compare to `comparison.json` (catch = 1.0 across all configs; rubber-stamp = 0).
+- [ ] **Gate 4** Reproducibility: `pnpm orch eval` → identical numbers; hand-calc Config C = 581,775 ms / 15 = 38,785 ms; Config D = 422,685 ms / 15 = 28,179 ms; `rg "Proposed implementation code patch" results/` → **0 matches**.
 
 ---
 
@@ -111,7 +111,7 @@ $d = Get-Content 'results\trajectories-config-d-(critic-isolated).json' -Raw | C
 $d | Where-Object { $_.category -eq 'seeded-flaw' } | ForEach-Object {
   "$($_.taskId): first=$($_.reviews[0].verdict) outcome=$($_.finalOutcome)"
 }
-# Expect (Config D, last run): seeded-1=approve (MISSED), seeded-2=revise, seeded-3=revise → catch 2/3 = 0.667
+# Expect (Config D, last run): seeded-1=revise (caught, escalated), seeded-2=revise (caught, approved), seeded-3=revise (caught, escalated) → catch 3/3 = 1.0
 
 # Well-specified: success rate = approved / 10
 $d | Where-Object { $_.category -eq 'well-specified' } | ForEach-Object { $_.finalOutcome }
@@ -126,4 +126,3 @@ $d | Where-Object { $_.category -eq 'ambiguous' } | ForEach-Object {
 Get-Content 'results\comparison.json' -Raw | ConvertFrom-Json | Select-Object configName, taskSuccessRate, criticCatchRate, rubberStampRate, totalTokensPerTask, wallClockPerTaskMs
 ```
 
-**"Good" = these hold:** catch B/C = 1.0, D = 0.667; rubber-stamp B/C = 0, D = 0.143; Config D lowest tokens/wall-clock (3,400 / 35.3s); no mock signature; 15/15 `sampleSize` per config.
